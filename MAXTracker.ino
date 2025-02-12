@@ -221,17 +221,16 @@ vector<ActiveVehicles> getActiveStops() {
   }
   int active_stop_count = active_vehicles.size();
   Serial.printf("Active Vehicle Count: %d \n", active_stop_count);
-
+  /*  debugging
   for (const auto& vehicle : active_vehicles) {
-    /*  debugging
     Serial.print(", Stop ID: ");
     Serial.print(vehicle.stop_id);
     Serial.print("Line: ");
     Serial.print(vehicle.line.c_str());
     Serial.print(", Stop Index: ");
     Serial.println(vehicle.stop_index);
-    */
   }
+  */
   return active_vehicles;
 }
 
