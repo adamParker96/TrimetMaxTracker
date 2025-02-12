@@ -19,9 +19,6 @@ const char* app_id = SECRET_APP_ID;
 // Define routes
 const int routes[] = { 90, 100, 190, 200, 290 };  // Red, Blue, Yellow, Green, Orange
 
-// define list of activeVehicleIDs
-vector<int> active_vehicle_ids;
-
 // Struct for storing Active Vehicles
 struct ActiveVehicles {
   int vehicle_id;
@@ -62,7 +59,7 @@ CRGB greenLine[NUM_GREEN_LINE_LEDS];
 CRGB orangeLine[NUM_ORANGE_LINE_LEDS];
 
 
-// Simulated MaxStopLists (you should replace this with your actual stop list)
+//  map of each line and their respective stops in a pair, with first being the stop ID and second being the stop index.
 const std::map<string, vector<pair<int, int>>> list_of_stops = {
   { "Red", { { 9838, 0 }, { 9839, 1 }, { 9835, 2 }, { 9834, 3 }, { 9831, 4 }, { 9830, 5 }, { 9828, 6 }, { 9822, 7 }, { 9826, 8 }, { 9824, 9 }, { 9821, 10 }, { 9969, 11 }, { 10120, 12 }, { 10118, 13 }, { 9758, 14 }, { 8333, 15 }, { 8334, 16 }, { 8336, 17 }, { 8337, 18 }, { 8338, 19 }, { 8339, 20 }, { 8340, 21 }, { 8341, 22 }, { 8342, 23 }, { 8343, 24 }, { 8344, 25 }, { 8345, 26 }, { 8346, 27 }, { 8347, 28 }, { 10572, 29 }, { 10574, 30 }, { 10576, 31 }, { 10579, 32 }, { 14250, 33 }, { 8381, 34 }, { 8383, 35 }, { 8384, 36 } } },
   { "Blue", { { 9848, 0 }, { 9846, 1 }, { 9843, 2 }, { 9841, 3 }, { 9838, 4 }, { 9839, 5 }, { 9835, 6 }, { 9834, 7 }, { 9831, 8 }, { 9830, 9 }, { 9828, 10 }, { 9822, 11 }, { 9826, 12 }, { 9824, 13 }, { 9821, 14 }, { 9969, 15 }, { 10120, 16 }, { 10118, 17 }, { 9758, 18 }, { 8333, 19 }, { 8334, 20 }, { 8336, 21 }, { 8384, 22 }, { 8383, 23 }, { 8381, 24 }, { 8337, 25 }, { 8338, 26 }, { 8339, 27 }, { 8340, 28 }, { 8341, 29 }, { 8342, 30 }, { 8343, 31 }, { 8344, 32 }, { 8345, 33 }, { 8346, 34 }, { 8347, 35 }, { 8348, 36 }, { 8349, 37 }, { 8350, 38 }, { 8351, 39 }, { 8352, 40 }, { 8353, 41 }, { 8354, 42 }, { 8355, 43 }, { 13450, 44 }, { 8356, 45 }, { 8357, 46 }, { 8359, 47 } } },
@@ -188,7 +185,6 @@ vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<Active
           active_vehicles[index].stop_index = stop_index->second;
         }
       } else {                                     // if the vehicle meets the "active vehicle" requirements and doesnt exist in active_vehicles
-        active_vehicle_ids.push_back(vehicle_id);  // add this to the list of active vehicle IDs
         current_vehicle.vehicle_id = vehicle_id;
         current_vehicle.stop_id = stop_id;
         current_vehicle.line = line;
@@ -197,9 +193,6 @@ vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<Active
         current_vehicle.stop_index = stop_index->second;
         active_vehicles.push_back(current_vehicle);  // add the current_vehicle to the active_vehicles vector
       }
-
-
-
       // Print active vehicle info
       //Serial.printf("Stop ID %d | Line: %s | Stop: %s | Vehicle ID: %d |Feet Away: %d\n", stop_id, line.c_str(), stop_name.c_str(), vehicle_id, feet);
     }
@@ -233,20 +226,13 @@ vector<ActiveVehicles> getActiveStops() {
   int active_stop_count = active_vehicles.size();
   Serial.printf("Active Vehicle Count: %d \n", active_stop_count);
   for (const auto& vehicle : active_vehicles) {
-    int temp_stop_id = vehicle.stop_id;
-    auto check = list_of_stops.find(vehicle.line);  // pull the list of stops for the line (Red, Yellow, Blue, Green, Orange) from list_of_stops
-    auto check2 = find_if(check->second.begin(), check->second.end(), [temp_stop_id](const auto& p) // get the index for the stop
-      { 
-        return p.first == temp_stop_id; 
-      });  
-
     /*  debugging
     Serial.print(", Stop ID: ");
     Serial.print(vehicle.stop_id);
     Serial.print("Line: ");
     Serial.print(vehicle.line.c_str());
     Serial.print(", Stop Index: ");
-    Serial.println(check2->second);
+    Serial.println(vehicle.stop_index);
     */
   }
   return active_vehicles;
