@@ -36,7 +36,6 @@ struct Stop {
   int feet;
 };
 
-
 // Define the number of LEDs on each strip
 #define NUM_YELLOW_LINE_LEDS 17
 #define NUM_RED_LINE_LEDS 37
@@ -58,7 +57,6 @@ CRGB blueLine[NUM_BLUE_LINE_LEDS];
 CRGB greenLine[NUM_GREEN_LINE_LEDS];
 CRGB orangeLine[NUM_ORANGE_LINE_LEDS];
 
-
 //  map of each line and their respective stops in a pair, with first being the stop ID and second being the stop index.
 const std::map<string, vector<pair<int, int>>> list_of_stops = {
   { "Red", { { 9838, 0 }, { 9839, 1 }, { 9835, 2 }, { 9834, 3 }, { 9831, 4 }, { 9830, 5 }, { 9828, 6 }, { 9822, 7 }, { 9826, 8 }, { 9824, 9 }, { 9821, 10 }, { 9969, 11 }, { 10120, 12 }, { 10118, 13 }, { 9758, 14 }, { 8333, 15 }, { 8334, 16 }, { 8336, 17 }, { 8337, 18 }, { 8338, 19 }, { 8339, 20 }, { 8340, 21 }, { 8341, 22 }, { 8342, 23 }, { 8343, 24 }, { 8344, 25 }, { 8345, 26 }, { 8346, 27 }, { 8347, 28 }, { 10572, 29 }, { 10574, 30 }, { 10576, 31 }, { 10579, 32 }, { 14250, 33 }, { 8381, 34 }, { 8383, 35 }, { 8384, 36 } } },
@@ -67,6 +65,7 @@ const std::map<string, vector<pair<int, int>>> list_of_stops = {
   { "Green", { { 13132, 0 }, { 13130, 1 }, { 13129, 2 }, { 13128, 3 }, { 13127, 4 }, { 13126, 5 }, { 13125, 6 }, { 13124, 7 }, { 8347, 8 }, { 8346, 9 }, { 8345, 10 }, { 8344, 11 }, { 8343, 12 }, { 8342, 13 }, { 8341, 14 }, { 8340, 15 }, { 7601, 16 }, { 9303, 17 }, { 7627, 18 }, { 7646, 19 }, { 7608, 20 }, { 7618, 21 }, { 7606, 22 }, { 10293, 23 }, { 7774, 24 }, { 13123, 25 }, { 7777, 26 }, { 7787, 27 }, { 9299, 28 }, { 7763, 29 } } },
   { "Orange", { { 13720, 0 }, { 13721, 1 }, { 13722, 2 }, { 13723, 3 }, { 13724, 4 }, { 13725, 5 }, { 13726, 6 }, { 13727, 7 }, { 13728, 8 }, { 13729, 9 }, { 7606, 10 }, { 7618, 11 }, { 7608, 12 }, { 7646, 13 }, { 7627, 14 }, { 9303, 15 }, { 7601, 16 } } }
 };
+
 
 // function for pulling words out of a string
 vector<string> split_sentence(string sen) {
@@ -124,6 +123,7 @@ std::map<int, String> getStops(int route_id) {
   return stop_ids;  //  return our map of stop_ids
 }
 
+
 // Function to get arrivals for a given set of stops. Takes a map of stop_ids that we get from getStops(), and a vector of ActiveVehicles that we generate/update in this function.
 vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<ActiveVehicles> active_vehicles) {
   String stop_list = "";  //  making a batch call to the API requires us to turn our map of stop_ids into a commam seperated string
@@ -131,8 +131,6 @@ vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<Active
     stop_list += String(stop.first) + ",";  //  make sure  comma seperated
   }
   stop_list.remove(stop_list.length() - 1);  // Remove the last comma
-  //char url[200];
-  //snprintf(url, sizeof(url), "https://developer.trimet.org/ws/V2/arrivals?appID=%s&locIDS=%s&json=true", app_id, stop_list);
   String url = "https://developer.trimet.org/ws/V2/arrivals?appID=" + String(app_id) + "&locIDs=" + stop_list + "&json=true";
 
   HTTPClient http;
@@ -143,8 +141,8 @@ vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<Active
     String payload = http.getString();
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, payload);
-
     JsonArray arrivalArray = doc["resultSet"]["arrival"]; //  an array of arrivals that we get from Trimet
+
     for (JsonObject arrival : arrivalArray) { //  iterate through the array
       if (arrival["routeSubType"] != "Light Rail") continue;  //  Ignore Buses, Commuter Rail, and StreetCars
       if (arrival["status"] == "scheduled") continue; //  Ignore scheduled trains
@@ -214,17 +212,16 @@ vector<ActiveVehicles> getActiveStops() {
 
   for (int route : routes) {                           // iterate through the routes
     std::map<int, String> stop_ids = getStops(route);  //pull a map of the stops from each route
-
     if (stop_ids.empty()) {
       Serial.println("No stops found!");
       continue;
     }
-
     Serial.println("Getting arrivals for stops...");
     active_vehicles = getArrivals(stop_ids, active_vehicles);
   }
   int active_stop_count = active_vehicles.size();
   Serial.printf("Active Vehicle Count: %d \n", active_stop_count);
+
   for (const auto& vehicle : active_vehicles) {
     /*  debugging
     Serial.print(", Stop ID: ");
@@ -240,9 +237,17 @@ vector<ActiveVehicles> getActiveStops() {
 
 
 void updateLEDs(vector<ActiveVehicles> active_vehicles){
+  // clear the LEDs before we turn on our new ones
+  fill_solid(yellowLine, NUM_YELLOW_LINE_LEDS, CRGB::Black);
+  fill_solid(redLine, NUM_RED_LINE_LEDS, CRGB::Black);
+  fill_solid(blueLine, NUM_BLUE_LINE_LEDS, CRGB::Black);
+  fill_solid(greenLine, NUM_GREEN_LINE_LEDS, CRGB::Black);
+  fill_solid(orangeLine, NUM_ORANGE_LINE_LEDS, CRGB::Black);
+
   for (const auto& active_stop : active_vehicles) { //  iterate through each active_vehicle in active_vehicles
     String color = active_stop.line.c_str();  //  pull the color of the line (Red,Yellow,Green,Blue,Orange)
     int position = active_stop.stop_index;  //  pull the index of the stop on the line (we use this to tell FastLED which led on which strip to turn on)
+
     //  debugging 
     Serial.print("Active Station on the ");
     Serial.print(color);
@@ -319,6 +324,7 @@ void setup() {
 
   // Main loop - every 10 seconds, call getActiveStops(), and feed the list of active_vehicles to updateLEDs()
 void loop() {
+  //  clear stops (turn all LEDs)
   updateLEDs(getActiveStops());
   delay(10000);  // 10s delay between updating stops
 }
