@@ -9,6 +9,8 @@
 #include <FastLED.h>
 using namespace std;
 
+#define LED_BUILTIN 2 //  the internal pin for the onboard LED is 2
+
 // Define your Wi-Fi credentials
 const char* ssid = SECRET_SSID;
 const char* password = SECRET_PASSWORD;
@@ -126,6 +128,8 @@ std::map<int, String> getStops(int route_id) {
 
 // Function to get arrivals for a given set of stops. Takes a map of stop_ids that we get from getStops(), and a vector of ActiveVehicles that we generate/update in this function.
 vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<ActiveVehicles> active_vehicles) {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+
   String stop_list = "";  //  making a batch call to the API requires us to turn our map of stop_ids into a commam seperated string
   for (auto& stop : stop_ids) {
     stop_list += String(stop.first) + ",";  //  make sure  comma seperated
@@ -202,6 +206,7 @@ vector<ActiveVehicles> getArrivals(std::map<int, String> stop_ids, vector<Active
     return active_vehicles;
 }
   http.end();
+  digitalWrite(LED_BUILTIN, LOW);
   return active_vehicles;
 }
 
@@ -221,6 +226,7 @@ vector<ActiveVehicles> getActiveStops() {
   }
   int active_stop_count = active_vehicles.size();
   Serial.printf("Active Vehicle Count: %d \n", active_stop_count);
+
   /*  debugging
   for (const auto& vehicle : active_vehicles) {
     Serial.print(", Stop ID: ");
@@ -276,7 +282,6 @@ void updateLEDs(vector<ActiveVehicles> active_vehicles){
         orangeLine[position] = CRGB::Orange;  // Set LED to Orange
       }
     }
-
     // Update the LEDs
     FastLED.show();
     //delay(100); // Delay between actions for visibility
@@ -288,7 +293,6 @@ void updateLEDs(vector<ActiveVehicles> active_vehicles){
 void connectWifi() {
   WiFi.mode(WIFI_STA);  // Set ESP32 to station mode
   WiFi.begin(ssid, password);
-
   Serial.print("Connecting to WiFi...");
   
   // Wait until connected
@@ -303,7 +307,9 @@ void connectWifi() {
 // Main setup
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT); //  enable the onboard LED (blue light will blink when pulling data from trimet)
   connectWifi();
+
    // Initialize each strip with its respective pin
   FastLED.addLeds<WS2812, YELLOW_LINE_PIN, GRB>(yellowLine, NUM_YELLOW_LINE_LEDS);
   FastLED.addLeds<WS2812, RED_LINE_PIN, GRB>(redLine, NUM_RED_LINE_LEDS);
