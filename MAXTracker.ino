@@ -46,11 +46,11 @@ struct Stop {
 #define NUM_ORANGE_LINE_LEDS 17
 
 // Define the pin numbers for each strip (update to match your wiring)
+#define BLUE_LINE_PIN      13
 #define YELLOW_LINE_PIN    14
-#define RED_LINE_PIN       15
-#define BLUE_LINE_PIN      16
-#define GREEN_LINE_PIN     17
-#define ORANGE_LINE_PIN    18
+#define RED_LINE_PIN       26
+#define GREEN_LINE_PIN     32
+#define ORANGE_LINE_PIN    33
 
 // Create FastLED objects for each strip
 CRGB yellowLine[NUM_YELLOW_LINE_LEDS];
@@ -248,6 +248,7 @@ void updateLEDs(vector<ActiveVehicles> active_vehicles){
   fill_solid(blueLine, NUM_BLUE_LINE_LEDS, CRGB::Black);
   fill_solid(greenLine, NUM_GREEN_LINE_LEDS, CRGB::Black);
   fill_solid(orangeLine, NUM_ORANGE_LINE_LEDS, CRGB::Black);
+  FastLED.show();
 
   for (const auto& active_stop : active_vehicles) { //  iterate through each active_vehicle in active_vehicles
     String color = active_stop.line.c_str();  //  pull the color of the line (Red,Yellow,Green,Blue,Orange)
@@ -289,6 +290,7 @@ void updateLEDs(vector<ActiveVehicles> active_vehicles){
 }
 
 
+//  TODO : Replace with something that allows users to connect the ESP32 to wifi without having to physically connect to the esp32
 //  connect to wifi
 void connectWifi() {
   WiFi.mode(WIFI_STA);  // Set ESP32 to station mode
@@ -333,4 +335,3 @@ void loop() {
   updateLEDs(getActiveStops());
   delay(10000);  // 10s delay between updating stops
 }
-
