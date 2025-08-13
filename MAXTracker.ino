@@ -283,10 +283,10 @@ void updateLEDs(vector<ActiveVehicles> active_vehicles){
         orangeLine[position] = CRGB::Orange;  // Set LED to Orange
       }
     }
-    // Update the LEDs
-    FastLED.show();
-    //delay(100); // Delay between actions for visibility
   }
+  // Update the LEDs
+  FastLED.show();
+  //delay(100); // Delay between actions for visibility
 }
 
 
@@ -301,6 +301,7 @@ void connectWifi() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.print(".");
+    // TODO : add a timeout if the WIFI doesnt connect, and make the LEDs blink or something
   }
   Serial.println("\nConnected to WiFi!");
 }
