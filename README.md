@@ -10,4 +10,3 @@ So I went back and redesigned the map to have larger nodes for each station, as 
 <img width="14400" height="10800" alt="trimetMapAug14th" src="https://github.com/user-attachments/assets/c560d126-0e46-4d8f-9fc8-9985d3cf9ed6" />
 
 
-This version of the map allowed me to place my LEDs with much more ease (previously i was manually trimming down LEDs to get them to fit in the tight tolerances)
