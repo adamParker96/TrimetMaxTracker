@@ -8,4 +8,4 @@ However, When I printed out the map and began to lay down the LEDs, I realized t
 
 So I went back and redesigned the map to have larger nodes for each station, as well as increasing the distance between each station and thickening each color line:
 
-<img width="14400" height="10800" alt="trimetMapAug15th" src="https://github.com/user-attachments/assets/9c22a9ea-5bcd-4541-9c50-29d325443b96" />
+<img width="14400" height="10800" alt="trimetMapAug15th" src="https://github.com/user-attachments/assets/40a276c2-aa56-42e7-a6cc-7598d10011fb" />
